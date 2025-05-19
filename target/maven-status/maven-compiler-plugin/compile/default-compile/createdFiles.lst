@@ -1,0 +1,4 @@
+com\taxapp\DatabaseManager.class
+com\taxapp\Main.class
+com\taxapp\dao\TaxRecordDAO.class
+com\taxapp\model\TaxRecord.class
