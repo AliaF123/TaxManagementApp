@@ -3,17 +3,41 @@ package com.taxapp.model;
 import java.time.LocalDate;
 
 public class TaxRecord {
-    public String municipality;
-    public LocalDate start;
-    public LocalDate end;
-    public String taxType;
-    public double rate;
+    private String municipality;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private TaxType taxType;
+    private double rate;
 
-    public TaxRecord(String municipality, LocalDate start, LocalDate end, String taxType, double rate) {
+    public TaxRecord(String municipality, LocalDate startDate, LocalDate endDate, TaxType taxType, double rate) {
         this.municipality = municipality;
-        this.start = start;
-        this.end = end;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.taxType = taxType;
         this.rate = rate;
+    }
+
+    public boolean isDateInRange(LocalDate date) {
+        return !date.isBefore(startDate) && !date.isAfter(endDate);
+    }
+
+    public String getMunicipality() {
+        return municipality;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public TaxType getTaxType() {
+        return taxType;
+    }
+
+    public double getRate() {
+        return rate;
     }
 }

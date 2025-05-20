@@ -17,7 +17,7 @@ public class DatabaseManager {
                 "    rate REAL NOT NULL,\n" +
                 "    start_date TEXT NOT NULL,\n" +
                 "    end_date TEXT NOT NULL,\n" +
-                "    tax_type TEXT NOT NULL\n" + // underscore for readability
+                "    tax_type TEXT NOT NULL\n" +
                 ");";
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute(dropTable);

@@ -1,4 +1,7 @@
+com\taxapp\service\TaxService$1.class
 com\taxapp\DatabaseManager.class
 com\taxapp\Main.class
-com\taxapp\dao\TaxRecordDAO.class
 com\taxapp\model\TaxRecord.class
+com\taxapp\model\TaxType.class
+com\taxapp\dao\TaxRecordDAO.class
+com\taxapp\service\TaxService.class

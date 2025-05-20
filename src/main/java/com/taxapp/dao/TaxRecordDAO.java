@@ -1,54 +1,39 @@
 package com.taxapp.dao;
 
-import java.sql.*;
+import com.taxapp.model.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.taxapp.DatabaseManager;
-import com.taxapp.model.TaxRecord;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TaxRecordDAO {
+    private final List<TaxRecord> records = new ArrayList<>();
 
-    // Insert a TaxRecord into the database
-    public void insert(TaxRecord r) {
-        String sql = "INSERT INTO tax_records (municipality, rate, start_date, end_date, tax_type) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, r.municipality);
-            stmt.setDouble(2, r.rate);
-            stmt.setString(3, r.start.toString());
-            stmt.setString(4, r.end.toString());
-            stmt.setString(5, r.taxType);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Insert failed", e);
-        }
+    public TaxRecordDAO() {
+        seedData();
     }
 
-    // Find all tax records for a municipality that apply on a specific date
-    public List<TaxRecord> find(String municipality, LocalDate date) {
-        String sql = "SELECT * FROM tax_records WHERE municipality = ? AND start_date <= ? AND end_date >= ?";
-        List<TaxRecord> list = new ArrayList<>();
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, municipality);
-            stmt.setString(2, date.toString());
-            stmt.setString(3, date.toString());
+    private void seedData() {
+        records.add(
+                new TaxRecord("Copenhagen", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), TaxType.YEARLY, 0.2));
+        records.add(
+                new TaxRecord("Copenhagen", LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), TaxType.MONTHLY, 0.4));
+        records.add(
+                new TaxRecord("Copenhagen", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 1), TaxType.DAILY, 0.1));
+        records.add(new TaxRecord("Copenhagen", LocalDate.of(2025, 12, 25), LocalDate.of(2025, 12, 25), TaxType.DAILY,
+                0.1));
+    }
 
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                TaxRecord record = new TaxRecord(
-                        rs.getString("municipality"),
-                        LocalDate.parse(rs.getString("start_date")),
-                        LocalDate.parse(rs.getString("end_date")),
-                        rs.getString("tax_type"),
-                        rs.getDouble("rate"));
-                list.add(record);
+    public List<TaxRecord> findByMunicipalityAndDate(String municipality, LocalDate date) {
+        List<TaxRecord> result = new ArrayList<>();
+        for (TaxRecord r : records) {
+            if (r.getMunicipality().equalsIgnoreCase(municipality) && r.isDateInRange(date)) {
+                result.add(r);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Select failed", e);
         }
-        return list;
+        return result;
+    }
+
+    public void addRecord(TaxRecord record) {
+        records.add(record);
     }
 }

@@ -1,52 +1,68 @@
 package com.taxapp;
 
-import java.time.LocalDate;
-import java.util.*;
-
 import com.taxapp.dao.TaxRecordDAO;
 import com.taxapp.model.TaxRecord;
+import com.taxapp.service.TaxService;
+import com.taxapp.DatabaseManager;
+
+import java.time.LocalDate;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         DatabaseManager.initializeDatabase();
-        TaxRecordDAO dao = new TaxRecordDAO();
-        dao.insert(new TaxRecord("Copenhagen", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 1), "DAILY", 0.1));
-        dao.insert(new TaxRecord("Copenhagen", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), "YEARLY", 0.2));
-        dao.insert(new TaxRecord("Copenhagen", LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), "MONTHLY", 0.4));
-        dao.insert(new TaxRecord("Aarhus", LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), "MONTHLY", 0.3));
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter municipality: ");
-        String municipality = scanner.nextLine();
 
-        System.out.print("Enter date (YYYY-MM-DD): ");
-        LocalDate date = LocalDate.parse(scanner.nextLine());
-        scanner.close();
-        List<TaxRecord> records = dao.find(municipality, date);
-        TaxRecord best = null;
-        for (TaxRecord r : records) {
-            if (best == null || getPriority(r.taxType) < getPriority(best.taxType)) {
-                best = r;
+        TaxRecordDAO dao = new TaxRecordDAO();
+        TaxService service = new TaxService(dao);
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Tax Management Application");
+        while (true) {
+            System.out.println("\nChoose an option:");
+            System.out.println("1. Query tax");
+            System.out.println("2. Add tax record");
+            System.out.println("3. Exit");
+
+            int choice = Integer.parseInt(scanner.nextLine());
+
+            if (choice == 1) {
+                System.out.println("Enter municipality: ");
+                String municipality = scanner.nextLine();
+
+                System.out.println("Enter date (YYYY-MM-DD): ");
+                LocalDate date = LocalDate.parse(scanner.nextLine());
+
+                TaxRecord record = service.getBestTaxRecord(municipality, date);
+                if (record != null) {
+                    System.out.println("Tax rate for " + municipality + " on " + date + " is: " + record.getRate());
+                } else {
+                    System.out.println("No tax record found.");
+                }
+            } else if (choice == 2) {
+                System.out.println("Enter municipality: ");
+                String municipality = scanner.nextLine();
+
+                System.out.println("Enter start date (YYYY-MM-DD): ");
+                LocalDate startDate = LocalDate.parse(scanner.nextLine());
+
+                System.out.println("Enter end date (YYYY-MM-DD): ");
+                LocalDate endDate = LocalDate.parse(scanner.nextLine());
+
+                System.out.println("Enter tax type (DAILY, WEEKLY, MONTHLY, YEARLY): ");
+                String taxType = scanner.nextLine();
+
+                System.out.println("Enter base annual tax rate (e.g. 0.2): ");
+                double baseRate = Double.parseDouble(scanner.nextLine());
+
+                service.addTaxRecord(municipality, startDate, endDate, taxType, baseRate);
+                System.out.println("Tax record added.");
+            } else if (choice == 3) {
+                System.out.println("Exiting...");
+                break;
+            } else {
+                System.out.println("Invalid choice.");
             }
         }
-        if (best != null) {
-            System.out.println("Tax Rate: " + best.rate);
-        } else {
-            System.out.println("No tax rate found.");
-        }
-    }
-
-    public static int getPriority(String type) {
-        switch (type.toUpperCase()) {
-            case "DAILY":
-                return 1;
-            case "WEEKLY":
-                return 2;
-            case "MONTHLY":
-                return 3;
-            case "YEARLY":
-                return 4;
-            default:
-                return 5;
-        }
+        scanner.close();
     }
 }
