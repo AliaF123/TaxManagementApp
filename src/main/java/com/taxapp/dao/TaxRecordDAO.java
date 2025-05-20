@@ -3,7 +3,6 @@ package com.taxapp.dao;
 import com.taxapp.model.*;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TaxRecordDAO {
     private final List<TaxRecord> records = new ArrayList<>();
